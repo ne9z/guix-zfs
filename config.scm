@@ -108,6 +108,12 @@
           (service openssh-service-type)
           (service alsa-service-type)
           (service pulseaudio-service-type)
+          (service libvirt-service-type)
+          (service tor-service-type)
+          (service yggdrasil-service-type)
+          (service sddm-service-type
+                   (sddm-configuration
+                    (display-server "wayland")))
           (service seatd-service-type))
     %base-services))
 
