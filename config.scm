@@ -10,8 +10,14 @@
 ;; Indicate which modules to import to access the variables
 ;; used in this configuration.
 (use-modules (gnu))
-(use-service-modules desktop networking ssh)
-(use-package-modules certs guile emacs emacs-xyz wm terminals)
+(use-service-modules desktop networking ssh sound)
+(use-package-modules certs guile emacs emacs-xyz wm terminals
+		     mail gnuzilla tor i2p networking tex tmux pulseaudio
+		     engineering linux gps image-viewers julia pdf virtualization image w3m video password-utils dns version-control
+		     ;; qrencode
+		     aidc
+		     ;;gammastep
+		     xdisorg)
 
 (operating-system
   (locale "en_US.utf8")
@@ -29,11 +35,69 @@
           %base-user-accounts))
 
   (packages (append (list
+                     ;; https certs
                      nss-certs
+                     ;; emacs
                      emacs
                      emacs-pyim
+                     emacs-pyim-basedict
+                     emacs-auctex
+                     emacs-use-package
+                     emacs-notmuch
+                     emacs-julia-mode
+                     ;; firefox
+                     icecat
+                     ;; hidden
+                     tor-client
+                     i2pd
+                     yggdrasil
+                     ;; tex
+                     texlive-base
+                     ;; tmux
+                     tmux
+                     ;; vol
+                     pavucontrol
+                     ;; misc
+                     qrencode
+                     minicom
+                     sterm
+                     jmtpfs
+                     gpxsee
+                     nomacs
+                     julia
+                     qpdf
+                     ;; virt
+                     virt-manager
+                     ;; wm
                      foot
-                     sway)
+                     sway
+                     waybar
+                     swayidle
+                     swaylock
+                     gammastep
+                     brightnessctl
+                     fuzzel
+                     grim
+                     w3m
+                     wl-clipboard
+                     ;; tablet
+                     xournalpp
+                     ;; media
+                     mpv
+                     yt-dlp
+                     ;; mail
+                     isync
+                     msmtp
+                     notmuch
+                     ;; pdf
+                     zathura
+                     zathura-pdf-mupdf
+                     ;; passwords
+                     password-store
+                     ;; dns
+                     dnscrypt-proxy
+                     ;; git
+                     git-minimal)
                     %base-packages))
 
   (services
@@ -42,6 +106,8 @@
           (service wpa-supplicant-service-type)
           (service ntp-service-type)
           (service openssh-service-type)
+          (service alsa-service-type)
+          (service pulseaudio-service-type)
           (service seatd-service-type))
     %base-services))
 
