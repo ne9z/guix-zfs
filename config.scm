@@ -9,72 +9,61 @@
 
 ;; Indicate which modules to import to access the variables
 ;; used in this configuration.
-(use-modules (gnu) (guix packages) (guix ci) (guix channels))
-(use-service-modules cups desktop networking ssh xorg)
-(use-package-modules certs file-systems linux)
-
-(list (channel-with-substitutes-available
-       %default-guix-channel
-       "https://ci.guix.gnu.org/"))
-
-;; credits to raid5atemyhomework
-
-(define my-kernel linux-libre-5.10)
-
-(define my-zfs
-  (package
-    (inherit zfs)
-    (arguments
-      (cons* #:linux my-kernel
-             (package-arguments zfs)))))
-
+(use-modules (gnu))
+(use-service-modules desktop networking ssh)
+(use-package-modules certs guile emacs emacs-xyz wm terminals)
 
 (operating-system
-  (kernel my-kernel)
   (locale "en_US.utf8")
   (timezone "Europe/Berlin")
   (keyboard-layout (keyboard-layout "us"))
   (host-name "guix")
 
-  ;; The list of user accounts ('root' is implicit).
-  (users (cons* %base-user-accounts))
+  (users (cons*
+          (user-account
+           (name "yc")
+           (group "users")
+           (supplementary-groups '("wheel" "seat" "video"))
+           (password
+            "$6$Cxvgcprw5eeIevs1$tWBHPoK4/dFe26NkTJBAfIvtTVnJ6Ti10QEgxMkRiXQj/YqTwrJ5d4r406maz0UXY6iE9kf9LqHJE1VbiyYOW1"))
+          %base-user-accounts))
 
-  ;; Packages installed system-wide.  Users can also install packages
-  ;; under their own account: use 'guix search KEYWORD' to search
-  ;; for packages and 'guix install PACKAGE' to install a package.
-  (packages (append (list nss-certs my-zfs)
+  (packages (append (list
+                     nss-certs
+                     emacs
+                     emacs-pyim
+                     foot
+                     sway)
                     %base-packages))
 
-  (kernel-loadable-modules (list (list my-zfs "module")))
-  ;; Below is the list of system services.  To search for available
-  ;; services, run 'guix system search KEYWORD' in a terminal.
   (services
-   (append (list (service connman-service-type)
-                 (service wpa-supplicant-service-type)
-                 (service ntp-service-type))
+   (append
+    (list (service connman-service-type)
+          (service wpa-supplicant-service-type)
+          (service ntp-service-type)
+          (service openssh-service-type)
+          (service seatd-service-type))
+    %base-services))
 
-           ;; This is the default list of services we
-           ;; are appending to.
-           %base-services))
-  (bootloader (bootloader-configuration
-                (bootloader grub-efi-bootloader)
-                (targets (list "/boot/efi"))
-                (keyboard-layout keyboard-layout)))
-  (swap-devices (list (swap-space
-                        (target (uuid
-                                 "a11257dc-7c60-4e49-ac89-8a3da336252f")))))
+  (bootloader
+   (bootloader-configuration
+    (bootloader grub-bootloader)
+    (targets (list "/dev/disk/by-id/virtio-test1"))
+    (keyboard-layout keyboard-layout)))
 
-  ;; The list of file systems that get "mounted".  The unique
-  ;; file system identifiers there ("UUIDs") can be obtained
-  ;; by running 'blkid' in a terminal.
-  (file-systems (cons* (file-system
-                         (mount-point "/boot/efi")
-                         (device (uuid "D402-E003"
-                                       'fat32))
-                         (type "vfat"))
-                       (file-system
-                         (mount-point "/")
-                         (device (uuid
-                                  "37638ef6-974a-4466-93e2-3150c90cee15"
-                                  'ext4))
-                         (type "ext4")) %base-file-systems)))
+  (swap-devices
+   (list
+    (swap-space
+     (target "/dev/disk/by-id/virtio-test1-part3"))))
+
+  (file-systems
+   (cons*
+    (file-system
+     (mount-point "/boot/efi")
+     (device (file-system-label "EFI"))
+     (type "vfat"))
+    (file-system
+     (mount-point "/")
+     (device (file-system-label "guix"))
+     (type "ext4"))
+    %base-file-systems)))
