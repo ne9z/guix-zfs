@@ -1,0 +1,10 @@
+NixOS: full desktop with ZFS root, 8 min installation.
+
+Guix:  barebones with XFS root, 1 hour installation.
+
+One day with NixOS: learned flakes, packaged programs, contributed to
+Nixpkgs.
+
+One day with Guix: system installed.
+
+April 2023.
