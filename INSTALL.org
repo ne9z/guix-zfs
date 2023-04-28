@@ -65,6 +65,7 @@ Mount fs
 
 #+begin_src sh
   mount /dev/mapper/encrypted-root ${MNT}
+  herd start cow-store ${MNT}
   fallocate -l 4G ${MNT}/swapfile
   chmod 0600 ${MNT}/swapfile
   mkswap ${MNT}/swapfile

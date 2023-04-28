@@ -10,7 +10,7 @@
 ;; Indicate which modules to import to access the variables
 ;; used in this configuration.
 (use-modules (gnu))
-(use-service-modules desktop networking ssh sound)
+(use-service-modules desktop networking ssh sound virtualization)
 (use-package-modules certs guile emacs emacs-xyz wm terminals
 		     mail gnuzilla tor i2p networking tex tmux pulseaudio
 		     engineering linux gps image-viewers julia pdf virtualization image w3m video password-utils dns version-control
@@ -110,10 +110,6 @@
           (service pulseaudio-service-type)
           (service libvirt-service-type)
           (service tor-service-type)
-          (service yggdrasil-service-type)
-          (service sddm-service-type
-                   (sddm-configuration
-                    (display-server "wayland")))
           (service seatd-service-type))
     %base-services))
 
