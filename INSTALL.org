@@ -27,13 +27,6 @@ Set a mount point
 #+end_src
 
 
-Swap, reserve
-
-#+begin_src sh
-  SWAPSIZE=4
-  RESERVE=1
-#+end_src
-
 Partition
 
 #+begin_src sh
@@ -43,14 +36,12 @@ Partition
 
       parted --script --align=optimal  "${disk}" -- \
              mklabel gpt \
-             mkpart EFI 2MiB 1GiB \
-             mkpart guix 1GiB -$((SWAPSIZE + RESERVE))GiB \
-             mkpart swap  -$((SWAPSIZE + RESERVE))GiB -"${RESERVE}"GiB \
              mkpart BIOS 1MiB 2MiB \
-             set 1 esp on \
-             set 3 swap on \
-             set 4 bios_grub on \
-             set 4 legacy_boot on
+             mkpart EFI 2MiB 1GiB \
+             mkpart guix 1GiB -1GiB \
+             set 1 bios_grub on \
+             set 1 legacy_boot on
+             set 2 esp on
 
       partprobe "${disk}"
   }
@@ -63,18 +54,24 @@ Partition
 Format fs
 
 #+begin_src sh
-  mkfs.vfat -n EFI ${DISK}-part1
-  mkfs.ext4 -L guix ${DISK}-part2
-  mkswap ${DISK}-part3
+  mkfs.vfat -n EFI ${DISK}-part2
+  dd if=/dev/random of=tmp-key bs=1K count=128
+  cryptsetup luksFormat --uuid 4355ca4e-e2be-4cd7-ae81-31c6325744c7 --batch-mode --type luks1 --key-file ./tmp-key ${DISK}-part3
+  cryptsetup open --key-file ./tmp-key ${DISK}-part3 encrypted-root
+  mkfs.xfs -L guix /dev/mapper/encrypted-root
 #+end_src
 
 Mount fs
 
 #+begin_src sh
-  mount ${DISK}-part2 ${MNT}
+  mount /dev/mapper/encrypted-root ${MNT}
+  fallocate -l 4G ${MNT}/swapfile
+  chmod 0600 ${MNT}/swapfile
+  mkswap ${MNT}/swapfile
+  swapon ${MNT}/swapfile
   mkdir -p ${MNT}/boot/efi
+  mount ${DISK}-part2 ${MNT}/boot/efi
   mkdir -p ${MNT}/etc
-  swapon ${DISK}-part3
 #+end_src
 
 Download config
@@ -92,7 +89,14 @@ Install guix
 Unmount everything
 
 #+begin_src sh
+  swapoff ${MNT}/swapfile
   umount -R ${MNT}
+#+end_src
+
+Add my own password
+
+#+begin_src sh
+  cryptsetup luksAddKey --key-file ./tmp-key ${DISK}-part3
 #+end_src
 
 Reboot

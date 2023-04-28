@@ -54,7 +54,7 @@
   (mapped-devices
    (list (mapped-device
           ;; get uuid with cryptsetup luksUUID /dev/sda3
-          (source (uuid "12345678-1234-1234-1234-123456789abc"))
+          (source (uuid "4355ca4e-e2be-4cd7-ae81-31c6325744c7"))
           (target "encrypted-root")
           (type luks-device-mapping))))
 
@@ -70,12 +70,8 @@
      (device (file-system-label "EFI"))
      (type "vfat"))
     (file-system
-     (mount-point "/boot")
-     (device (file-system-label "boot"))
-     (type "ext4"))
-    (file-system
      (mount-point "/")
-     (device (file-system-label "encrypted-root"))
-     (type "ext4")
+     (device "/dev/mapper/encrypted-root")
+     (type "xfs")
      (dependencies mapped-devices))
     %base-file-systems)))
