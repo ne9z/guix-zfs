@@ -51,10 +51,17 @@
     (targets (list "/dev/disk/by-id/virtio-test1"))
     (keyboard-layout keyboard-layout)))
 
+  (mapped-devices
+   (list (mapped-device
+          ;; get uuid with cryptsetup luksUUID /dev/sda3
+          (source (uuid "12345678-1234-1234-1234-123456789abc"))
+          (target "encrypted-root")
+          (type luks-device-mapping))))
+
   (swap-devices
    (list
     (swap-space
-     (target "/dev/disk/by-id/virtio-test1-part3"))))
+     (target "/swapfile"))))
 
   (file-systems
    (cons*
@@ -63,7 +70,12 @@
      (device (file-system-label "EFI"))
      (type "vfat"))
     (file-system
-     (mount-point "/")
-     (device (file-system-label "guix"))
+     (mount-point "/boot")
+     (device (file-system-label "boot"))
      (type "ext4"))
+    (file-system
+     (mount-point "/")
+     (device (file-system-label "encrypted-root"))
+     (type "ext4")
+     (dependencies mapped-devices))
     %base-file-systems)))
