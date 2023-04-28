@@ -79,6 +79,7 @@ Download config
 
 #+begin_src sh
   wget -O ${MNT}/etc/config.scm https://raw.githubusercontent.com/ne9z/guix-zfs/main/config.scm
+  sed -i s,disk-place-holder,${DISK}, ${MNT}/etc/config.scm
 #+end_src
 
 Install guix

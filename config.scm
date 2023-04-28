@@ -116,7 +116,7 @@
   (bootloader
    (bootloader-configuration
     (bootloader grub-bootloader)
-    (targets (list "/dev/disk/by-id/virtio-test1"))
+    (targets (list "disk-place-holder"))
     (keyboard-layout keyboard-layout)))
 
   (mapped-devices
